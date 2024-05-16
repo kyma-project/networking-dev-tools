@@ -12,6 +12,7 @@ jobs:
         platforms: [linux/amd64, linux/arm64, darwin/amd64, darwin/arm64]
     runs-on: ubuntu-latest
     steps:
+      - run: pwd
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -26,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: oauth2-mock/Dockerfile
-          context: .
+          context: oauth2-mock
           load: true
           platforms: ${{ matrix.platforms }}
           push: true
