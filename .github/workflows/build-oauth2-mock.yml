@@ -12,7 +12,7 @@ jobs:
         platforms: [linux/amd64, linux/arm64, darwin/amd64, darwin/arm64]
     runs-on: ubuntu-latest
     steps:
-      - run: pwd
+      - run: ls -l
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
