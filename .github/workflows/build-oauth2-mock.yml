@@ -25,7 +25,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: oauth2-mock/.
+          context: oauth2-mock
+          file: oauth2-mock/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/oauth2-mock:${{ github.sha }},europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/oauth2-mock:latest
