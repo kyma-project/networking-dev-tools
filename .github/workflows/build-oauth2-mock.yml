@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: oauth2-mock/Dockerfile
-          context: ./oauth2-mock
+          context: .
           load: true
           platforms: ${{ matrix.platforms }}
           push: true
