@@ -27,6 +27,7 @@ jobs:
         with:
           file: oauth2-mock/Dockerfile
           context: ./oauth2-mock
+          load: true
           platforms: linux/amd64,linux/arm64
           push: true
           tags: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/oauth2-mock:${{ github.sha }},europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/oauth2-mock:latest
