@@ -3,7 +3,7 @@
 ## Overview
 <!--- mandatory section --->
 
-This repository contains tooling, documentation and utilities that are shared between [kyma-project/istio](https://github.com/kyma-project/istio) and [kyma-project/api-gateway](https://github.com/kyma-project/api-gateway).
+This repository contains tooling, documentation, and utilities that are shared between the projects [kyma-project/istio](https://github.com/kyma-project/istio) and [kyma-project/api-gateway](https://github.com/kyma-project/api-gateway).
 
 ## Contributing
 <!--- mandatory section - do not change this! --->
