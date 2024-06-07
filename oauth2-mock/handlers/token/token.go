@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
+	"strings"
 
 	"github.com/lestrrat-go/jwx/v2/jwt"
 
@@ -19,14 +20,15 @@ const (
 )
 
 type Handler struct {
-	ReadToken    uuid.UUID
-	NoScopeToken uuid.UUID
-	IssuerURL    string
-	Key          jwk.Key
+	ReadToken      uuid.UUID
+	NoScopeToken   uuid.UUID
+	ReadWriteToken uuid.UUID
+	IssuerURL      string
+	Key            jwk.Key
 }
 
-func NewHandler(readToken uuid.UUID, noScopeToken uuid.UUID, issuer string, key jwk.Key) *Handler {
-	return &Handler{ReadToken: readToken, NoScopeToken: noScopeToken, IssuerURL: issuer, Key: key}
+func NewHandler(readToken uuid.UUID, readWriteToken, noScopeToken uuid.UUID, issuer string, key jwk.Key) *Handler {
+	return &Handler{ReadToken: readToken, ReadWriteToken: readWriteToken, NoScopeToken: noScopeToken, IssuerURL: issuer, Key: key}
 }
 
 func (h Handler) Handle(c *gin.Context) {
@@ -34,12 +36,21 @@ func (h Handler) Handle(c *gin.Context) {
 	scope := c.PostForm(scope)
 
 	tokenFormat := c.Query("token_format")
+	if tokenFormat == "" {
+		tokenFormat = c.PostForm("token_format")
+	}
 
 	switch grant {
 	case "client_credentials":
 		switch tokenFormat {
 		case "opaque":
 			switch scope {
+			default:
+				c.JSON(http.StatusOK, gin.H{
+					"access_token": h.ReadWriteToken,
+					"token_type":   "Bearer",
+					"expires_in":   3600,
+				})
 			case "read":
 				c.JSON(http.StatusOK, gin.H{
 					"access_token": h.ReadToken,
@@ -80,7 +91,7 @@ func (h Handler) NewRSAJWT(scp string, aud string) ([]byte, error) {
 	}
 
 	builder.Subject("test")
-	builder.Audience([]string{aud})
+	builder.Audience(strings.Split(aud, ","))
 
 	if scp != "" {
 		builder.Claim("scope", scp)
