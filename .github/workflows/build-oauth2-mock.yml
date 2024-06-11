@@ -28,6 +28,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
+          provenance: false
           file: oauth2-mock/Dockerfile
           context: oauth2-mock
           load: true
