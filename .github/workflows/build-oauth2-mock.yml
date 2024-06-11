@@ -7,9 +7,6 @@ on:
 
 jobs:
   docker:
-    strategy:
-      matrix:
-        platforms: [linux/amd64, linux/arm64]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +27,5 @@ jobs:
         with:
           file: oauth2-mock/Dockerfile
           context: oauth2-mock
-          load: true
-          platforms: ${{ matrix.platforms }}
           push: true
           tags: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock:${{ github.sha }},europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock:latest
