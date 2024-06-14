@@ -2,7 +2,10 @@ module github.com/kyma-project/networking-dev-tools/grpc-loadtest
 
 go 1.22
 
-require github.com/bojand/ghz v0.120.0
+require (
+	github.com/bojand/ghz v0.120.0
+	github.com/pkg/sftp v1.13.6
+)
 
 require (
 	cloud.google.com/go/compute v1.20.1 // indirect
@@ -27,6 +30,7 @@ require (
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/jhump/protoreflect v1.15.1 // indirect
 	github.com/jinzhu/configor v1.2.1 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
