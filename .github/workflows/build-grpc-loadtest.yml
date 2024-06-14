@@ -1,4 +1,4 @@
-name: OAuth2 Mock image build & push
+name: gRPC load testing image build & push
 
 on:
   push:
