@@ -25,7 +25,7 @@ func init() {
 	flag.StringVar(&service, "service", "HelloService.SayHello", "The service and method to call")
 	flag.StringVar(&address, "address", "localhost:50051", "The address of the service host and port")
 	flag.BoolVar(&insecure, "insecure", true, "Use an insecure connection")
-	flag.UintVar(&requests, "number", 10000, "The number of requests to send")
+	flag.UintVar(&requests, "requests", 10000, "The number of requests to send")
 	flag.IntVar(&duration, "duration", 0, "The duration in seconds to send requests. If different than 0, requests will be ignored")
 	flag.UintVar(&concurrency, "concurrency", 1, "The number of requests to run concurrently")
 	flag.UintVar(&rps, "rps", 0, "The target requests per second")
