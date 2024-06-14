@@ -15,18 +15,20 @@ var (
 	service     string
 	address     string
 	insecure    bool
-	number      int
-	concurrency int
+	requests    uint
+	concurrency uint
 	duration    int
+	rps         uint
 )
 
 func init() {
 	flag.StringVar(&service, "service", "HelloService.SayHello", "The service and method to call")
 	flag.StringVar(&address, "address", "localhost:50051", "The address of the service host and port")
 	flag.BoolVar(&insecure, "insecure", true, "Use an insecure connection")
-	flag.IntVar(&number, "number", 10000, "The number of requests to send")
+	flag.UintVar(&requests, "number", 10000, "The number of requests to send")
 	flag.IntVar(&duration, "duration", 0, "The duration in seconds to send requests. If different than 0, requests will be ignored")
-	flag.IntVar(&concurrency, "concurrency", 1, "The number of requests to run concurrently")
+	flag.UintVar(&concurrency, "concurrency", 1, "The number of requests to run concurrently")
+	flag.UintVar(&rps, "rps", 0, "The target requests per second")
 
 	flag.Parse()
 }
@@ -34,15 +36,15 @@ func init() {
 func main() {
 	var report *runner.Report
 	if duration == 0 {
-		fmt.Printf("Running test of %s for %d requests with %d concurrency\n", service, number, concurrency)
-		r, err := loadTestRunner.RunTestForRequestNumber(service, address, insecure, uint(number), uint(concurrency))
+		fmt.Printf("Running test of %s for %d requests with %d concurrency\n", service, requests, concurrency)
+		r, err := loadTestRunner.RunTestForRequestNumber(service, address, insecure, requests, concurrency, rps)
 		if err != nil {
 			panic(err)
 		}
 		report = r
 	} else {
 		fmt.Printf("Running test of %s for %d seconds with %d concurrency\n", service, duration, concurrency)
-		r, err := loadTestRunner.RunTestForDuration(service, address, insecure, time.Duration(duration)*time.Second, uint(concurrency))
+		r, err := loadTestRunner.RunTestForDuration(service, address, insecure, time.Duration(duration)*time.Second, concurrency, rps)
 		if err != nil {
 			panic(err)
 		}

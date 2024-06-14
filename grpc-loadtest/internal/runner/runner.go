@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func RunTestForDuration(service string, address string, insecure bool, duration time.Duration, concurrency uint) (*runner.Report, error) {
+func RunTestForDuration(service string, address string, insecure bool, duration time.Duration, concurrency uint, rps uint) (*runner.Report, error) {
 	run, err := runner.Run(
 		service,
 		address,
@@ -17,12 +17,13 @@ func RunTestForDuration(service string, address string, insecure bool, duration 
 		runner.WithInsecure(insecure),
 		runner.WithRunDuration(duration),
 		runner.WithConcurrency(concurrency),
+		runner.WithRPS(rps),
 	)
 
 	return run, err
 }
 
-func RunTestForRequestNumber(service string, address string, insecure bool, requests uint, concurrency uint) (*runner.Report, error) {
+func RunTestForRequestNumber(service string, address string, insecure bool, requests uint, concurrency uint, rps uint) (*runner.Report, error) {
 	run, err := runner.Run(
 		service,
 		address,
@@ -33,6 +34,7 @@ func RunTestForRequestNumber(service string, address string, insecure bool, requ
 		runner.WithInsecure(insecure),
 		runner.WithTotalRequests(requests),
 		runner.WithConcurrency(concurrency),
+		runner.WithRPS(rps),
 	)
 
 	return run, err
