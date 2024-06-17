@@ -22,6 +22,8 @@ var (
 	duration    int
 	rps         uint
 
+	authority string
+
 	htmlReportPath string
 
 	sftpHost string
@@ -38,6 +40,8 @@ func init() {
 	flag.UintVar(&concurrency, "concurrency", 1, "The number of requests to run concurrently")
 	flag.UintVar(&rps, "rps", 0, "The target requests per second")
 
+	flag.StringVar(&authority, "authority", "", "The authority pseudo-header to use in the request")
+
 	flag.StringVar(&htmlReportPath, "htmlReportPath", "/tmp/report.html", "The path to the html report")
 
 	flag.StringVar(&sftpHost, "sftpHost", "", "The address of the sftp host and port. If not provided, the results will not be uploaded to the sftp server.")
@@ -51,14 +55,14 @@ func main() {
 	var report *runner.Report
 	if duration == 0 {
 		fmt.Printf("Running test of %s for %d requests with %d concurrency\n", service, requests, concurrency)
-		r, err := loadTestRunner.RunTestForRequestNumber(service, address, insecure, requests, concurrency, rps)
+		r, err := loadTestRunner.RunTestForRequestNumber(service, authority, address, insecure, requests, concurrency, rps)
 		if err != nil {
 			panic(err)
 		}
 		report = r
 	} else {
 		fmt.Printf("Running test of %s for %d seconds with %d concurrency\n", service, duration, concurrency)
-		r, err := loadTestRunner.RunTestForDuration(service, address, insecure, time.Duration(duration)*time.Second, concurrency, rps)
+		r, err := loadTestRunner.RunTestForDuration(service, authority, address, insecure, time.Duration(duration)*time.Second, concurrency, rps)
 		if err != nil {
 			panic(err)
 		}
