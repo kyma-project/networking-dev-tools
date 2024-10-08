@@ -1,3 +1,4 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/kyma-project/networking-dev-tools)](https://api.reuse.software/info/github.com/kyma-project/networking-dev-tools)
 # Networking Dev Tools
 
 ## Overview
