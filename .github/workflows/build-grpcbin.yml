@@ -9,7 +9,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     env:
-      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/grpcbin/dev
+      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/grpcbin
     steps:
       - uses: actions/checkout@v4
         with:
