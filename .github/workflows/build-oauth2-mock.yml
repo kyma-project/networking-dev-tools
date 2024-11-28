@@ -24,16 +24,24 @@ jobs:
           registry: europe-central2-docker.pkg.dev
           username: _json_key_base64
           password: ${{ secrets.DOCKER_PUSH_SA_KEY }}
-      - name: Build amd64 Docker image
-        shell: bash
-        run: |
-          docker buildx build --platform linux/amd64 --push \
-          -t ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64 -t ${{ env.REGISTRY_URL }}:amd64 --file oauth2-mock/Dockerfile oauth2-mock
       - name: Build arm64 Docker image
-        shell: bash
-        run: |
-          docker buildx build --platform linux/arm64 --push \
-          -t ${{ env.REGISTRY_URL }}:${{ github.sha }}-arm64 -t ${{ env.REGISTRY_URL }}:arm64 --file oauth2-mock/Dockerfile oauth2-mock
+        uses: docker/build-push-action@v5
+        with:
+          file: oauth2-mock/Dockerfile
+          platforms: linux/arm64
+          provenance: false
+          push: true
+          context: oauth2-mock
+          tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64,${{ env.REGISTRY_URL }}:amd64
+      - name: Build amd64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          file: oauth2-mock/Dockerfile
+          platforms: linux/amd64
+          provenance: false
+          push: true
+          context: oauth2-mock
+          tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-arm64,${{ env.REGISTRY_URL }}:arm64
       - name: Build latest manifest
         shell: bash
         run: |
