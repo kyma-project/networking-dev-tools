@@ -8,6 +8,8 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,10 +24,31 @@ jobs:
           registry: europe-central2-docker.pkg.dev
           username: _json_key_base64
           password: ${{ secrets.DOCKER_PUSH_SA_KEY }}
-      - name: Build and push Docker image
+      - name: Build amd64 Docker image
         uses: docker/build-push-action@v5
         with:
           file: oauth2-mock/Dockerfile
-          context: oauth2-mock
+          platforms: linux/amd64
+          provenance: false
           push: true
-          tags: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock:${{ github.sha }},europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock:latest
+          context: oauth2-mock
+          tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64,${{ env.REGISTRY_URL }}:amd64
+      - name: Build arm64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          file: oauth2-mock/Dockerfile
+          platforms: linux/arm64
+          provenance: false
+          push: true
+          context: oauth2-mock
+          tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-arm64,${{ env.REGISTRY_URL }}:arm64
+      - name: Build latest manifest
+        shell: bash
+        run: |
+          docker manifest create ${{ env.REGISTRY_URL }}:latest \
+          ${{ env.REGISTRY_URL }}:amd64 ${{ env.REGISTRY_URL }}:arm64
+      - name: Push latest manifest
+        shell: bash
+        run: |
+          docker manifest push ${{ env.REGISTRY_URL }}:latest
+

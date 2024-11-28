@@ -8,6 +8,8 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/grpc-loadtest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,10 +27,31 @@ jobs:
       - name: Copy hello.proto into grpc-loadtest
         run: cp grpcbin/pkg/hello/hello.proto grpc-loadtest/hello.proto
         shell: bash
-      - name: Build and push Docker image
+      - name: Build amd64 Docker image
         uses: docker/build-push-action@v5
         with:
           file: grpc-loadtest/Dockerfile
           context: grpc-loadtest
+          platforms: linux/amd64
+          provenance: false
           push: true
-          tags: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/grpc-loadtest:${{ github.sha }},europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/grpc-loadtest:latest
+          tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64,${{ env.REGISTRY_URL }}:amd64
+      - name: Build arm64 Docker image
+        uses: docker/build-push-action@v5
+        with:
+          file: grpc-loadtest/Dockerfile
+          context: grpc-loadtest
+          platforms: linux/arm64
+          provenance: false
+          push: true
+          tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-arm64,${{ env.REGISTRY_URL }}:arm64
+      - name: Build latest manifest
+        shell: bash
+        run: |
+          docker manifest create ${{ env.REGISTRY_URL }}:latest \
+          ${{ env.REGISTRY_URL }}:amd64 ${{ env.REGISTRY_URL }}:arm64
+      - name: Push latest manifest
+        shell: bash
+        run: |
+          docker manifest push ${{ env.REGISTRY_URL }}:latest
+
