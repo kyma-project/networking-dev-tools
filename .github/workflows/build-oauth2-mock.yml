@@ -29,6 +29,7 @@ jobs:
         with:
           file: oauth2-mock/Dockerfile
           platforms: linux/arm64
+          push: true
           context: oauth2-mock
           tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64,${{ env.REGISTRY_URL }}:amd64
       - name: Build arm64 Docker image
@@ -36,6 +37,7 @@ jobs:
         with:
           file: oauth2-mock/Dockerfile
           platforms: linux/amd64
+          push: true
           context: oauth2-mock
           tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-arm64,${{ env.REGISTRY_URL }}:arm64
       - name: Build latest manifest
