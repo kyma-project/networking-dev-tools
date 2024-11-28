@@ -1,4 +1,4 @@
-name: OAuth2 Mock image build & push
+name: gRPC load testing image build & push
 
 on:
   push:
@@ -9,7 +9,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     env:
-      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock/dev
+      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/grpc-loadtest/dev
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,23 +24,26 @@ jobs:
           registry: europe-central2-docker.pkg.dev
           username: _json_key_base64
           password: ${{ secrets.DOCKER_PUSH_SA_KEY }}
+      - name: Copy hello.proto into grpc-loadtest
+        run: cp grpcbin/pkg/hello/hello.proto grpc-loadtest/hello.proto
+        shell: bash
       - name: Build amd64 Docker image
         uses: docker/build-push-action@v5
         with:
-          file: oauth2-mock/Dockerfile
+          file: grpc-loadtest/Dockerfile
+          context: grpc-loadtest
           platforms: linux/amd64
           provenance: false
           push: true
-          context: oauth2-mock
           tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64,${{ env.REGISTRY_URL }}:amd64
       - name: Build arm64 Docker image
         uses: docker/build-push-action@v5
         with:
-          file: oauth2-mock/Dockerfile
+          file: grpc-loadtest/Dockerfile
+          context: grpc-loadtest
           platforms: linux/arm64
           provenance: false
           push: true
-          context: oauth2-mock
           tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-arm64,${{ env.REGISTRY_URL }}:arm64
       - name: Build latest manifest
         shell: bash
