@@ -41,6 +41,8 @@ func (h Handler) Handle(c *gin.Context) {
 	}
 
 	switch grant {
+	default:
+		fallthrough
 	case "client_credentials":
 		switch tokenFormat {
 		case "opaque":
