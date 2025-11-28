@@ -33,7 +33,6 @@ where `xx` is the number of the given document. For example:
    02-30-use-metrics
    (...)
    ```
-> **NOTE:** Before introducing [docsify](https://docsify.js.org/#/?id=docsify), we agreed to use the `10`, `20`, `30` numbering. It was to help maintain the proper order of docs if they were rendered automatically on the website. With docsify, you manually add the content to the `_sidebar.md` file, and docs are displayed in the order you add them. However, this numbering is still recommended to have the unified structure of the docs in the module repositories.
       
 If you have other content that does not fit into the above topics, create your own 04-10-module-specific document(s).
 
