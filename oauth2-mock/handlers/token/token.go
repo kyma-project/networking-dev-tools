@@ -14,9 +14,13 @@ import (
 )
 
 const (
-	grantType = "grant_type"
-	scope     = "scope"
-	audience  = "audience"
+	grantTypeParam   = "grant_type"
+	scopeParam       = "scope"
+	audienceParam    = "audience"
+	subjectParam     = "subject"
+	tokenFormatParam = "token_format"
+	defaultAudience  = "default"
+	defaultSubject   = "test"
 )
 
 type Handler struct {
@@ -32,12 +36,12 @@ func NewHandler(readToken uuid.UUID, readWriteToken, noScopeToken uuid.UUID, iss
 }
 
 func (h Handler) Handle(c *gin.Context) {
-	grant := c.PostForm(grantType)
-	scope := c.PostForm(scope)
+	grant := c.PostForm(grantTypeParam)
+	scope := c.PostForm(scopeParam)
 
-	tokenFormat := c.Query("token_format")
+	tokenFormat := c.Query(tokenFormatParam)
 	if tokenFormat == "" {
-		tokenFormat = c.PostForm("token_format")
+		tokenFormat = c.PostForm(tokenFormatParam)
 	}
 
 	switch grant {
@@ -69,8 +73,17 @@ func (h Handler) Handle(c *gin.Context) {
 		default:
 			fallthrough
 		case "jwt":
-			aud := c.PostForm(audience)
-			rsaJwt, err := h.NewRSAJWT(scope, aud)
+			audience, audProvided := c.GetPostForm(audienceParam)
+			if !audProvided {
+				audience = defaultAudience // for backward compatibility
+			}
+
+			subject, subProvided := c.GetPostForm(subjectParam)
+			if !subProvided {
+				subject = defaultSubject // for backward compatibility
+			}
+
+			rsaJwt, err := h.NewRSAJWT(scope, audience, subject)
 			if err != nil {
 				_ = c.Error(err)
 				c.Status(http.StatusInternalServerError)
@@ -85,18 +98,21 @@ func (h Handler) Handle(c *gin.Context) {
 	}
 }
 
-func (h Handler) NewRSAJWT(scp string, aud string) ([]byte, error) {
-	builder := jwt.NewBuilder().Issuer(h.IssuerURL).NotBefore(time.Now()).IssuedAt(time.Now()).Expiration(time.Now().Add(1 * time.Hour))
+func (h Handler) NewRSAJWT(scope string, audience string, subject string) ([]byte, error) {
+	builder := jwt.NewBuilder().
+		Issuer(h.IssuerURL).
+		IssuedAt(time.Now()).
+		NotBefore(time.Now().Add(-1 * time.Hour)).
+		Expiration(time.Now().Add(1 * time.Hour))
 
-	if aud == "" {
-		aud = "default"
+	if subject != "" {
+		builder.Subject(subject)
 	}
-
-	builder.Subject("test")
-	builder.Audience(strings.Split(aud, ","))
-
-	if scp != "" {
-		builder.Claim("scope", scp)
+	if audience != "" {
+		builder.Audience(strings.Split(audience, ","))
+	}
+	if scope != "" {
+		builder.Claim("scope", scope)
 	}
 
 	t, err := builder.Build()
