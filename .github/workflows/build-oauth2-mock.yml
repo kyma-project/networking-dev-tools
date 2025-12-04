@@ -9,7 +9,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     env:
-      REGISTRY_URL: europe-docker.pkg.dev/kyma-project/dev/networking-dev-tools/oauth2-mock
+      REGISTRY_URL: europe-central2-docker.pkg.dev/sap-se-cx-kyma-goat/networking-dev-tools/oauth2-mock
     steps:
       - uses: actions/checkout@v4
         with:
