@@ -12,10 +12,15 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
 )
 
 func main() {
 	r := gin.Default()
+	m := ginmetrics.GetMonitor()
+
+	m.SetMetricPath("/metrics")
+	m.Use(r)
 
 	readToken := uuid.New()
 	noScopeToken := uuid.New()
