@@ -1,6 +1,6 @@
 module github.com/kyma-project/networking-dev-tools/oauth2-mock
 
-go 1.22
+go 1.25
 
 require (
 	github.com/gin-gonic/gin v1.9.1
