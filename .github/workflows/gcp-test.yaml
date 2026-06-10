@@ -1,0 +1,33 @@
+name: Test GCP Workload Identity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/557726257426/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-deployer@sap-se-cx-kyma-goat.iam.gserviceaccount.com
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Show active credentials
+        run: |
+          gcloud auth list
+          gcloud config list
+
+      - name: Verify project access
+        run: |
+          gcloud projects describe sap-se-cx-kyma-goat
