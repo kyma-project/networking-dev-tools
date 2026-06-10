@@ -1,7 +1,7 @@
 name: Test GCP Workload Identity
 
 on:
-  workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
