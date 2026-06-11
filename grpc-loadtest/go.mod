@@ -1,11 +1,11 @@
 module github.com/kyma-project/networking-dev-tools/grpc-loadtest
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/bojand/ghz v0.121.0
 	github.com/pkg/sftp v1.13.10
-	golang.org/x/crypto v0.41.0
+	golang.org/x/crypto v0.53.0
 )
 
 require (
@@ -41,11 +41,11 @@ require (
 	github.com/spf13/cast v1.4.1 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.35.0 // indirect
-	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/sync v0.21.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/text v0.38.0 // indirect
 	google.golang.org/genproto v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230530153820-e85fd2cbaebc // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
