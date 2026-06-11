@@ -28,7 +28,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build amd64 Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           file: grpcbin/Dockerfile
           context: grpcbin
@@ -37,7 +37,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY_URL }}:${{ github.sha }}-amd64,${{ env.REGISTRY_URL }}:amd64
       - name: Build arm64 Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           file: grpcbin/Dockerfile
           context: grpcbin
