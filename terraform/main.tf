@@ -1,12 +1,12 @@
 resource "google_cloud_run_v2_service" "httpbin" {
-  name     = var.service_name
-  location = var.region
-  ingress  = "INGRESS_TRAFFIC_ALL"
+  name                 = var.service_name
+  location             = var.region
+  ingress              = "INGRESS_TRAFFIC_ALL"
   invoker_iam_disabled = true
 
   scaling {
     manual_instance_count = null
-    scaling_mode = "AUTOMATIC"
+    scaling_mode          = "AUTOMATIC"
   }
 
   template {
