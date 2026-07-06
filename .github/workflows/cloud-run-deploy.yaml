@@ -1,0 +1,108 @@
+name: Cloud Run Deploy
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/cloud-run-deploy.yaml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/cloud-run-deploy.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: cloud-run-tofu
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: httpbin
+    defaults:
+      run:
+        working-directory: terraform
+    env:
+      TF_VAR_project_id: ${{ vars.GCP_PROJECT_ID }}
+      TF_VAR_custom_domain: ${{ vars.CUSTOM_DOMAIN }}
+      TF_VAR_dns_zone_name: ${{ vars.DNS_ZONE_NAME }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/557726257426/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-actions@sap-se-cx-kyma-goat.iam.gserviceaccount.com
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.8.5
+
+      - name: tofu fmt
+        run: tofu fmt -check -recursive
+        working-directory: .
+
+      - name: tofu init
+        run: tofu init -input=false
+
+      - name: tofu validate
+        run: tofu validate -no-color
+
+      - name: tofu plan
+        id: plan
+        run: tofu plan -input=false -no-color -out=tfplan
+
+      - name: Save plan output
+        if: always()
+        run: tofu show -no-color tfplan > tfplan.txt
+
+      - name: Upload plan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: |
+            terraform/tfplan
+            terraform/tfplan.txt
+          retention-days: 7
+
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('terraform/tfplan.txt', 'utf8');
+            const truncated = plan.length > 60000
+              ? plan.slice(0, 60000) + '\n\n...output truncated...'
+              : plan;
+            const body = [
+              '### OpenTofu plan',
+              '',
+              '```',
+              truncated,
+              '```'
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: tofu apply
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: tofu apply -input=false -auto-approve tfplan
