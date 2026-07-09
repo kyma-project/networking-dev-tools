@@ -47,7 +47,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1
+        uses: opentofu/setup-opentofu@v2
         with:
           tofu_version: 1.8.5
 
