@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/bojand/ghz/runner"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
-	"os"
-	"time"
+	"golang.org/x/crypto/ssh/knownhosts"
 
 	"github.com/bojand/ghz/printer"
 	loadTestRunner "github.com/kyma-project/networking-dev-tools/grpc-loadtest/internal/runner"
@@ -26,10 +29,20 @@ var (
 
 	htmlReportPath string
 
-	sftpHost string
-	sshUser  string
-	sshPass  string
+	sftpHost       string
+	sshUser        string
+	sshPass        string
+	sshKeyPath     string
+	knownHostsPath string
 )
+
+func defaultKnownHostsPath() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(home, ".ssh", "known_hosts")
+}
 
 func init() {
 	flag.StringVar(&service, "service", "HelloService.SayHello", "The service and method to call")
@@ -46,7 +59,9 @@ func init() {
 
 	flag.StringVar(&sftpHost, "sftpHost", "", "The address of the sftp host and port. If not provided, the results will not be uploaded to the sftp server.")
 	flag.StringVar(&sshUser, "sshUser", "goat", "The username for the sftp server")
-	flag.StringVar(&sshPass, "sshPass", "load", "The password for the sftp server")
+	flag.StringVar(&sshPass, "sshPass", "load", "The password for the sftp server. Ignored when sshKeyPath is set.")
+	flag.StringVar(&sshKeyPath, "sshKeyPath", "", "Path to a private key for the sftp server. Takes precedence over sshPass when set.")
+	flag.StringVar(&knownHostsPath, "knownHostsPath", defaultKnownHostsPath(), "Path to the known_hosts file used to verify the sftp server host key")
 
 	flag.Parse()
 }
@@ -119,12 +134,26 @@ func main() {
 }
 
 func DialSSH(sftpHost string) (*ssh.Client, error) {
+	if knownHostsPath == "" {
+		return nil, fmt.Errorf("knownHostsPath is empty: cannot verify host key, refusing to connect")
+	}
+
+	hostKeyCallback, err := knownhosts.New(knownHostsPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load known_hosts from %q: %w", knownHostsPath, err)
+	}
+
+	authMethod, err := sshAuthMethod()
+	if err != nil {
+		return nil, err
+	}
+
 	sshConfig := &ssh.ClientConfig{
 		User: sshUser,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(sshPass),
+			authMethod,
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: hostKeyCallback,
 	}
 
 	sshClient, err := ssh.Dial("tcp", sftpHost, sshConfig)
@@ -133,4 +162,19 @@ func DialSSH(sftpHost string) (*ssh.Client, error) {
 	}
 
 	return sshClient, nil
+}
+
+func sshAuthMethod() (ssh.AuthMethod, error) {
+	if sshKeyPath != "" {
+		key, err := os.ReadFile(sshKeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read private key %q: %w", sshKeyPath, err)
+		}
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse private key %q: %w", sshKeyPath, err)
+		}
+		return ssh.PublicKeys(signer), nil
+	}
+	return ssh.Password(sshPass), nil
 }
