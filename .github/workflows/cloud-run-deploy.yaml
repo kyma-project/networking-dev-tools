@@ -1,13 +1,12 @@
 name: Cloud Run Deploy
 
 on:
-  pull_request:
-    paths:
-      - 'terraform/**'
-      - '.github/workflows/cloud-run-deploy.yaml'
   push:
     branches:
       - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/cloud-run-deploy.yaml'
   workflow_dispatch:
 
 permissions:
